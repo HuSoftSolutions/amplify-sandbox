@@ -29,7 +29,8 @@ const checkAuth = async (callback: (status: AuthStatus) => void) => {
   try {
     const session = await fetchAuthSession();
     callback(session.tokens ? 'authenticated' : 'unauthenticated');
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Auth check failed:', error);
     callback('unauthenticated');
   }
 };

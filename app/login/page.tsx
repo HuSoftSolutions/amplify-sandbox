@@ -1,11 +1,12 @@
 "use client";
 
 import { Authenticator } from '@aws-amplify/ui-react';
+import { AuthUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-function AuthenticatedContent({ user, onAuthenticated }: { 
-  user: any; 
+function AuthenticatedContent({ onAuthenticated }: { 
+  user: AuthUser;
   onAuthenticated: () => void;
 }) {
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function Login() {
 
   return (
     <Authenticator>
-      {({ signOut, user }) => {
+      {({ user }) => {
         if (user) {
           return <AuthenticatedContent 
             user={user} 

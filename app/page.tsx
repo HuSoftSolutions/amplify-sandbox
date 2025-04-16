@@ -35,7 +35,7 @@ export default function Home() {
         return;
       }
 
-      const validTodos = data.filter((todo): todo is Todo => 
+      const validTodos = data.filter((todo): todo is { id: string; content: string; createdAt: string; updatedAt: string } => 
         todo !== null && typeof todo.content === 'string'
       );
       setTodos(validTodos);

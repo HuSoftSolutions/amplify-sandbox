@@ -4,7 +4,7 @@ import type { Schema } from "@/amplify/data/resource";
 import { setupAuthListener, type AuthStatus } from "@/utils/auth";
 import { generateClient } from "aws-amplify/data";
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Todo = {
   id: string;
@@ -26,6 +26,22 @@ export default function AdminDashboard() {
     authMode: 'userPool'
   });
 
+  const fetchTodos = useCallback(async () => {
+    try {
+      const { data } = await client.models.Todo.list();
+      const validTodos = data.filter((todo): todo is { id: string; content: string; createdAt: string; updatedAt: string } => 
+        todo !== null && typeof todo.content === 'string'
+      );
+      setTodos(validTodos);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching todos:', error);
+      setError('Failed to fetch todos');
+    } finally {
+      setLoading(false);
+    }
+  }, [client]);
+
   useEffect(() => {
     const unsubscribe = setupAuthListener((status) => {
       setAuthStatus(status);
@@ -41,23 +57,7 @@ export default function AdminDashboard() {
         unsubscribe();
       }
     };
-  }, [router]);
-
-  const fetchTodos = async () => {
-    try {
-      const { data } = await client.models.Todo.list();
-      const validTodos = data.filter((todo): todo is Todo => 
-        todo !== null && typeof todo.content === 'string'
-      );
-      setTodos(validTodos);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching todos:', error);
-      setError('Failed to fetch todos');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [router, fetchTodos]);
 
   const handleCreateTodo = async (e: React.FormEvent) => {
     e.preventDefault();
